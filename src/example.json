@@ -1,0 +1,31 @@
+{
+  "data": [
+    {
+      "canteen": "MAIN CANTEEN",
+      "title": "Sandwich",
+      "description": "Veg Sandwich",
+      "price": "₹30",
+      "time": "1 minutes",
+      "image": "https://www.watermelon.org/wp-content/uploads/2023/02/Sandwich_2023.jpg",
+      "_id":"1"
+    },
+    {
+      "canteen": "MAIN CANTEEN",
+      "title": "Veg Burger",
+      "description": "Veg Burger",
+      "price": "₹45",
+      "time": "8 minutes",
+      "image": "https://images.pexels.com/photos/70497/pexels-photo-70497.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
+      "_id":"2"
+    },
+    {
+      "canteen": "MAIN CANTEEN",
+      "title": "Chole Bhature",
+      "description": "Chole Bhature",
+      "price": "₹40",
+      "time": "800 minutes",
+      "image": "https://static.toiimg.com/photo/98230357.cms",
+      "_id":"3"
+    }
+  ]
+}
