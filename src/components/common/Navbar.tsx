@@ -9,7 +9,7 @@ import { useModal } from "../../context/ModalContext";
 
 function Navbar() {
   const { isSignedIn } = useReduxState();
-
+console.log("hi")
   const [cartOpen, setCartOpen] = useState(false);
   const modal = useModal();
 
