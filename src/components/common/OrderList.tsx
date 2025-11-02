@@ -102,7 +102,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                     verified: "bg-yellow-500",
                                     "in-progress": "bg-blue-500",
                                     done: "bg-green-500",
-                                    cancelled: "bg-red"
+                                    cancelled: "bg-[#950606]"
                                 }[order.status]} text-xs capitalize`}>
                                     {order.status}
                                 </h1>
@@ -121,7 +121,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                             {
                                 (props.admin && order.status != 'done' && order.status != 'cancelled') && (
                                     <div className="flex gap-2 mt-4">
-                                        <Button className="w-full" color="primary"
+                                        <Button className="w-full bg-[#E49B0F] "
                                             onClick={async () => {
                                                 if (!(await modal?.CreateModal("Confirmation", "Are you sure you want to change the status of this order?", "Yes", "No"))) {
                                                     return;
@@ -194,7 +194,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                                     });
                                                 }
                                             }}
-                                            className="w-full" color={"red"}>Payment Not Received</Button>
+                                            className="w-full bg-[#950606]" >Payment Not Received</Button>
                                         }
                                     </div>
                                 )

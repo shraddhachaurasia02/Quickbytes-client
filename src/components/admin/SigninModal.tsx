@@ -118,8 +118,8 @@ export default function SigninModal(props:{setIsSignedIn: (val:boolean) => void}
                         Password
                     </Input>
                     <Button
-                        className="mt-4"
-                        color="primary"
+                        className="mt-4 bg-[#477203]"
+                        
                     >
                         Sign in
                     </Button>

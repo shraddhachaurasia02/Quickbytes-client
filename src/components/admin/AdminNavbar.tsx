@@ -7,11 +7,11 @@ export default function AdminNavbar() {
       <header
         className={`w-full bg-background/50 backdrop-blur hidden md:block z-30`}
       >
-        <div className={`p-4 lg:p-6 flex items-center container mx-auto`}>
+        <div className={`p-4 lg:p-6 flex  items-center container mx-auto`}>
           <Link className="flex items-center justify-center" to="/">
-            <Icon className="w-6 h-6" />
+            <Icon className="w-6 h-6 " />
           </Link>
-          <nav className="ml-auto flex gap-4 sm:gap-6">
+          <nav className="ml-auto  flex gap-4 sm:gap-6">
             <Link to="">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +19,7 @@ export default function AdminNavbar() {
                 viewBox="0 0 24 24"
                 strokeWidth={1.5}
                 stroke="currentColor"
-                className="w-8 h-8 hover:text-primary hover:scale-105 active:scale-95 duration-200"
+                className="w-8 h-8 hover:text-primary  hover:scale-105 active:scale-95 duration-200"
               >
                 <path
                   strokeLinecap="round"

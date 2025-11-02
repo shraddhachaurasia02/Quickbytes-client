@@ -65,7 +65,7 @@ function LandingPage() {
             </h1>
             <div className="flex gap-4 justify-center">
               <Link className="w-full" to="/admin">
-                <Button className="w-full" color={"primary"}>
+                <Button className="w-full bg-[#E49B0F]" >
                   Admin Portal
                 </Button>
               </Link>
