@@ -6,258 +6,288 @@ import axios from "../../axios";
 import { toast } from "react-toastify";
 import { useModal } from "../../context/ModalContext";
 
-
-// ... (MenuModal code )
-function MenuModal({ modalOpen, setModalOpen, addMode, formData, setFormData }: {
-    modalOpen: boolean, setModalOpen: Function, addMode: boolean, formData: {
-        title: string;
-        price: string;
-        description: string;
-        time: string;
-        image: string;
-        canteen: string;
-        
-        _id?: string; 
-    },
-    setFormData: Function
-}) {
-    const { setMenu } = useReduxAction();
-
-    async function GetMenu() { /* ... */ }
-
-
-    async function handleSubmit(e: any) {
-      
-        e.preventDefault(); 
-
-        try {
-            let response;
-            
-          
-            if (addMode) {
-                
-                response = await axios.post("/menu", formData);
-            } else {
-
-                response = await axios.put("/menu", formData); 
-            }
-
-            // Check if the API call was successful (200 OK, 201 Created)
-            if (response.status === 200 || response.status === 201) {
-                toast.success(addMode ? "Item added successfully" : "Item updated successfully");
-
-                
-                const resp = await axios.get("/menu");
-                if (resp.status == 200) {
-                    // Update the Redux store, which will update the UI
-                    setMenu(resp.data.data);
-                }
-
-                // Close the modal
-                setModalOpen(false);
-                
-            } else {
-                toast.error("Failed to submit item.");
-            }
-        } catch (err: any) {
-            // Show an error message if the API call fails
-            toast.error(err?.response?.data?.message || "An unknown error occurred.");
-        }
-    }
-
-    return (
-        <div className={`${modalOpen ? "bg-black/50" : "pointer-events-none"} duration-300 fixed w-screen h-screen top-0 left-0 z-50 grid place-items-center p-4`}>
-            <div className={`${modalOpen ? "" : "scale-125 opacity-0"} duration-300 max-w-lg w-full card p-6`}>
-                <div className="flex justify-between items-center">
-                    <h1 className="text-xl md:text-2xl font-medium">{addMode ? "Add Item" : "Edit Item"}</h1>
-                    <svg
-                        onClick={() => { setModalOpen(false); }}
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={1.5}
-                        stroke="currentColor"
-                        className="w-8 h-8 text-text/70 hover:text-primary hover:scale-105 active:scale-95 duration-100 cursor-pointer hover:bg-black/10 rounded-full p-1"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                        />
-                    </svg>
-                </div>
-
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 mt-4 gap-4">
-                    <div className="md:col-span-2">
-                        <Input placeHolder="Enter Title" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}>Title</Input>
-                    </div>
-
-                    <Input placeHolder="Enter Canteen Name" value={formData.canteen} onChange={(e) => setFormData({ ...formData, canteen: e.target.value })}>Canteen Name</Input>
-
-                    <Input placeHolder="Price Excluding Unit" value={formData.price} onChange={(e) => setFormData({ ...formData, price: e.target.value })}>Price</Input>
-
-                    <div className="md:col-span-2">
-                        <Input placeHolder="A Short Description" value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}>Description</Input>
-                    </div>
-
-                    <Input placeHolder="e.g., 15 Mins" value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })}>Time</Input>
-
-                    <Input placeHolder="Image URL" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })}>Image</Input>
-
-                    <Button className="mt-4 bg-[#477023] hover:bg-[#3a5a1c] duration-200 md:col-span-2">
-                        {addMode ? "Add Item" : "Update Item"}
-                    </Button>
-                </form>
-            </div>
-        </div>
-    )
-}
-// ... (MenuItem code )
-
-function MenuItem(props: any) {
-    const modal = useModal();
-    // Destructure all item properties
-    const { title, price, _id, description, image, time, canteen } = props.item;
-    const { setModalOpen, setAddMode, setFormData } = props;
-    const { setMenu } = useReduxAction();
-
-    // Helper function for the delete confirmation and action
-    async function handleDelete() {
-        if (await modal?.CreateModal("Delete Menu Item", "Are you sure you want to delete this item?", "Delete", "Cancel")) {
-            try {
-                const response = await axios.delete('/menu', { data: { _id } });
-                if (response.status === 200) {
-                    toast.success("Item deleted successfully");
-                    // Refetch menu
-                    const resp = await axios.get("/menu");
-                    if (resp.status == 200)
-                        setMenu(resp.data.data);
-                } else {
-                    toast.error("Failed to delete item");
-                }
-            } catch (err: any) {
-                toast.error(err?.response?.data?.message);
-            }
-        }
-    }
-
-    return (
-        // The card is now a flex container
-        <div className="card p-4 flex flex-col sm:flex-row gap-4 overflow-hidden">
-            {/* Image Section */}
-            <img
-                // Use a fallback image if none is provided
-                src={image || 'https://via.placeholder.com/150'}
-                alt={title}
-                className="w-full sm:w-36 sm:h-36 h-48 object-cover rounded-lg flex-shrink-0"
-            />
-
-            {/* Content Section */}
-            <div className="flex flex-col flex-grow">
-                {/* Top Row: Title, Canteen, Price */}
-                <div className="flex justify-between items-start gap-2">
-                    <div>
-                        <h1 className="font-bold text-2xl">{title}</h1>
-                        <p className="text-sm text-text/70">{canteen}</p>
-                    </div>
-                    <span className="font-bold text-2xl text-[#477023] flex-shrink-0">{price}</span>
-                </div>
-
-                {/* Middle Row: Description */}
-                <p className="text-sm text-text/80 my-2 line-clamp-2">
-                    {description}
-                </p>
-
-                {/* Bottom Row: Time & Actions - mt-auto pushes this to the bottom */}
-                <div className="flex justify-between items-center mt-auto pt-2">
-                    {/* Delivery Time */}
-                    <div className="flex items-center gap-1.5 text-sm text-text/70">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                        </svg>
-                        <span>{time}</span>
-                    </div>
-
-                    {/* Action Buttons: Added text for clarity */}
-                    <div className="flex gap-2">
-                        <Button
-                            className="bg-[#E49B0F] hover:bg-[#c88a0e] text-white duration-200 text-sm font-medium !p-2 flex items-center gap-1.5"
-                            onClick={() => {
-                                setModalOpen(true);
-                                setAddMode(false);
-                                setFormData({ ...props.item, price: price.replace("₹", "") });
-                            }}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                            </svg>
-                            <span>Edit</span>
-                        </Button>
-                        <Button
-                            onClick={handleDelete}
-                            // Assuming this makes it red
-                            className="!p-2 text-sm font-medium flex items-center gap-1.5 bg-[#950606]" // Added text, icon, and spacing
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                            </svg>
-                            <span>Delete</span>
-                        </Button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
 export default function MenuPage() {
-    const { menu } = useReduxState();
-    const [modalOpen, setModalOpen] = useState(false);
-    const [addMode, setAddMode] = useState(false);
-    const [formData, setFormData] = useState({
-        title: "",
-        price: "",
+  const { menu } = useReduxState();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [addMode, setAddMode] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    price: "",
+    description: "",
+    time: "",
+    image: "",
+    canteen: "",
+  });
+
+  useEffect(() => {
+    if (!modalOpen) {
+      setFormData({
         description: "",
-        time: "",
         image: "",
-        canteen: ""
-    });
+        price: "",
+        time: "",
+        title: "",
+        canteen: "",
+      });
+    }
+  }, [modalOpen]);
 
-    useEffect(() => {
-        if (!modalOpen) {
-            setFormData({ description: "", image: "", price: "", time: "", title: "", canteen: "" });
-        }
-    }, [modalOpen])
+  return (
+    <>
+      <MenuModal
+        formData={formData}
+        setFormData={setFormData}
+        addMode={addMode}
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+      />
+      <main className="w-full lg:w-[64rem] p-6 mx-auto">
+        <div className="flex justify-between items-center bg-white shadow-md rounded-2xl p-6 border border-gray-100">
+          <h1 className="text-3xl font-bold text-gray-800 tracking-wide">
+            🍽️ Menu Dashboard
+          </h1>
+          <Button
+            className="bg-[#477023] hover:bg-[#588b2e] text-white px-6 py-2 rounded-lg shadow-md"
+            onClick={() => {
+              setModalOpen(true);
+              setAddMode(true);
+            }}
+          >
+            + Add Item
+          </Button>
+        </div>
 
-    return (
-        <>
-            <MenuModal formData={formData} setFormData={setFormData} addMode={addMode} modalOpen={modalOpen} setModalOpen={setModalOpen} />
-            <main className="w-full lg:w-[64rem] p-4 mx-auto">
-                {/* [UI Improvement] Added more padding (p-6) and a sub-heading for context */}
-                <div className="card p-6 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                    <div>
-                        <h1 className="text-4xl font-bold">Menu</h1>
-                        <p className="text-text/70 mt-1">Manage all the food items available in the canteens.</p>
-                    </div>
-                    <Button
-                        className="bg-[#477023] hover:bg-[#3a5a1c] duration-200 flex-shrink-0" // Added hover effect
-                        onClick={() => { setModalOpen(true); setAddMode(true) }}
-                    >
-                        Add Item
-                    </Button>
-                </div>
-                <div className="flex flex-col gap-4 mt-4">
-                    {
-                        menu.map((item: any, index: number) => (
-                            // Passed the full item to our new, more detailed MenuItem
-                            <MenuItem setFormData={setFormData} setModalOpen={setModalOpen} setAddMode={setAddMode} key={index} item={item} />
-                        ))
-                    }
-                </div>
-            </main>
-        </>
-    )
+        {/* Menu Items Grid */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          {menu.map((item: any, index: number) => (
+            <MenuItem
+              key={index}
+              item={item}
+              setFormData={setFormData}
+              setModalOpen={setModalOpen}
+              setAddMode={setAddMode}
+            />
+          ))}
+        </div>
+      </main>
+    </>
+  );
 }
 
-// ... (Rest of the file: MenuModal and MenuItem components)
+function MenuModal({
+  modalOpen,
+  setModalOpen,
+  addMode,
+  formData,
+  setFormData,
+}: {
+  modalOpen: boolean;
+  setModalOpen: Function;
+  addMode: boolean;
+  formData: {
+    title: string;
+    price: string;
+    description: string;
+    time: string;
+    image: string;
+    canteen: string;
+  };
+  setFormData: Function;
+}) {
+  const { setMenu } = useReduxAction();
 
+  async function GetMenu() {
+    try {
+      const resp = await axios.get("/menu");
+      if (resp.status == 200) setMenu(resp.data.data);
+    } catch (e: any) {
+      toast.error(e.message, {
+        position: "bottom-right",
+      });
+    }
+  }
+
+  async function handleSubmit(e: any) {
+    e.preventDefault();
+    const endpoint = addMode ? "/menu" : "/menu";
+    const method = addMode ? axios.post : axios.put;
+
+    try {
+      const response = await method(endpoint, {
+        ...formData,
+        price: `₹${formData.price}`,
+      });
+      if (response.status === 200) {
+        toast.success(`Item ${addMode ? "added" : "updated"} successfully`);
+        setModalOpen(false);
+        setFormData({
+          description: "",
+          image: "",
+          price: "",
+          time: "",
+          title: "",
+          canteen: "",
+        });
+        GetMenu();
+      } else {
+        toast.error(`Failed to ${addMode ? "add" : "update"} item`);
+      }
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message);
+    }
+  }
+
+  return (
+    <div
+      className={`fixed inset-0 z-50 grid place-items-center transition-all duration-300 ${
+        modalOpen ? "bg-black/50 visible opacity-100" : "opacity-0 invisible"
+      }`}
+    >
+      <div
+        className={`bg-white w-[90%] max-w-md rounded-2xl shadow-lg p-6 transform transition-all duration-300 ${
+          modalOpen ? "scale-100 opacity-100" : "scale-110 opacity-0"
+        }`}
+      >
+        <div className="flex justify-between items-center border-b pb-2 mb-4">
+          <h1 className="text-2xl font-semibold text-gray-800">
+            {addMode ? "Add Menu Item" : "Edit Menu Item"}
+          </h1>
+          <button
+            onClick={() => setModalOpen(false)}
+            className="text-gray-500 hover:text-[#477023] transition"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          <Input
+            placeHolder="Enter Title"
+            value={formData.title}
+            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          >
+            Title
+          </Input>
+          <Input
+            placeHolder="Enter Canteen Name"
+            value={formData.canteen}
+            onChange={(e) =>
+              setFormData({ ...formData, canteen: e.target.value })
+            }
+          >
+            Canteen Name
+          </Input>
+          <Input
+            placeHolder="Price (exclude ₹)"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+          >
+            Price
+          </Input>
+          <Input
+            placeHolder="Short Description"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
+          >
+            Description
+          </Input>
+          <Input
+            placeHolder="Delivery Time (e.g., 15 mins)"
+            value={formData.time}
+            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+          >
+            Time
+          </Input>
+          <Input
+            placeHolder="Image URL"
+            value={formData.image}
+            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+          >
+            Image
+          </Input>
+
+          <Button className="mt-4 bg-[#477023] hover:bg-[#588b2e] text-white py-2 rounded-lg transition">
+            {addMode ? "Add Item" : "Update Item"}
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function MenuItem({ item, setFormData, setModalOpen, setAddMode }: any) {
+  const modal = useModal();
+  const { title, price, _id, description, image, canteen, time } = item;
+  const { setMenu } = useReduxAction();
+
+  return (
+    <div className="bg-white border border-gray-100 shadow-sm hover:shadow-lg transition-all rounded-2xl overflow-hidden flex flex-col">
+      {image ? (
+        <img
+          src={image}
+          alt={title}
+          className="h-40 w-full object-cover rounded-t-2xl"
+        />
+      ) : (
+        <div className="h-40 w-full bg-gray-100 flex items-center justify-center text-gray-400">
+          No Image
+        </div>
+      )}
+
+      <div className="p-4 flex flex-col gap-2">
+        <h2 className="font-semibold text-lg text-gray-800">{title}</h2>
+        <p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+        <div className="flex justify-between items-center mt-2">
+          <span className="font-medium text-[#477023]">{price}</span>
+          <span className="text-sm text-gray-500">{time}</span>
+        </div>
+        <p className="text-sm text-gray-400 italic">Canteen: {canteen}</p>
+
+        <div className="flex gap-3 mt-4">
+          <Button
+            className="flex-1 bg-[#E49B0F] hover:bg-[#f2aa2d] text-white rounded-lg py-1"
+            onClick={() => {
+              setModalOpen(true);
+              setAddMode(false);
+              setFormData({ ...item, price: price.replace("₹", "") });
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            className="flex-1 bg-[#950606] hover:bg-red-700 text-white rounded-lg py-1"
+            onClick={async () => {
+              if (
+                await modal?.CreateModal(
+                  "Delete Menu Item",
+                  "Are you sure you want to delete this item?",
+                  "Delete",
+                  "Cancel"
+                )
+              ) {
+                try {
+                  const response = await axios.delete("/menu", {
+                    data: { _id },
+                  });
+                  if (response.status === 200) {
+                    toast.success("Item deleted successfully");
+                    const resp = await axios.get("/menu");
+                    if (resp.status == 200) setMenu(resp.data.data);
+                  } else {
+                    toast.error("Failed to delete item");
+                  }
+                } catch (err: any) {
+                  toast.error(err?.response?.data?.message);
+                }
+              }
+            }}
+          >
+            Delete
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
