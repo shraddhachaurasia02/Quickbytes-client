@@ -1,38 +1,17 @@
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import axios from "../../axios";
 import { toast } from "react-toastify";
 import { AxiosResponse } from "axios";
 import Button from "./Button";
 import { useModal } from "../../context/ModalContext";
+import { useReduxAction, useReduxState } from "../../hooks/UseRedux";
+import { Order } from "../../model/order/IOrderModel";
 
 function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
 {
-    interface order {
-        status: "unverified" | "verified" | "in-progress" | "done" | "cancelled";
-        otp:number;
-        userId:{
-            username:string;
-            email:string;
-            password:string;
-            _id:string;
-        }
-        _id:string;
-        order: {
-            menuId:{
-                canteen:string;
-                description:string;
-                image:string;   
-                price: string;
-                time:string;
-                title: string;
-                _id:string;
-            }
-            quantity: number;
-        }[]
-    }
-    const [orders, setOrders] = useState<order[]>([]);
+    const { orders } = useReduxState();
+    const { setOrders, updateOrder } = useReduxAction();
     const modal = useModal();
-
 
     async function getOrders()
     {
@@ -53,13 +32,14 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                     }
                 });    
             }
-            console.log(response.data.data.orders);
-            setOrders(response.data.data.orders);
+            if (response.data.success) {
+                setOrders(response.data.data.orders);
+            }
         }
         catch(error: any)
         {
             console.error(error);
-            toast.error(error.response.data.message,
+            toast.error(error.response?.data?.message || "Failed to fetch orders",
             {
                 position: "bottom-right"
             });
@@ -82,10 +62,14 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                         }
 
                         let total = 0;
-                        console.log(order);
                         order.order.forEach((item) => {
-                            total += parseInt(item.menuId.price.split("₹")[1], 10) * item.quantity;
+                            const priceStr = item.menuId.price.replace(/₹/g, "").replace(/,/g, "").trim();
+                            const price = parseFloat(priceStr) || 0;
+                            total += price * item.quantity;
                         });
+                        
+                        // Use order amount if available, otherwise calculate
+                        const orderTotal = order.amount || total;
 
                         return(
                         <div key={index} className="p-4 card">
@@ -94,7 +78,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                     props.admin?(
                                         <h1 className="text-2xl font-bold">{order.userId.username}{"  |  "}{order.otp}</h1>
                                     ):(
-                                        <h1 className="text-2xl font-bold">{order.otp}{"  |  "}₹{total}</h1>
+                                        <h1 className="text-2xl font-bold">{order.otp}{"  |  "}₹{orderTotal}</h1>
                                     )
                                 }
                                 <h1 className={`px-4 py-2 text-white rounded-full ${{
@@ -112,7 +96,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                     order.order.map((item, index) => (
                                             <div key={index} className="flex justify-between">
                                                 <h1>{item.menuId.title}</h1>
-                                                <h1>{item.menuId.price} x {item.quantity} = {parseInt(item.menuId.price.split("₹")[1], 10) * item.quantity}</h1>
+                                                <h1>{item.menuId.price} x {item.quantity} = ₹{(parseFloat(item.menuId.price.replace(/₹/g, "").replace(/,/g, "").trim()) || 0) * item.quantity}</h1>
                                             </div>
                                         )
                                     )
@@ -135,13 +119,18 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                                 }[order.status];
                                                 try
                                                 {
-                                                    
                                                     const response = await axios.put('/order', {
                                                         _id: order._id,
                                                         status: newStatus
                                                     });
                                                     if(response.status == 200)
                                                     {
+                                                        // Update order in state
+                                                        updateOrder({
+                                                            orderId: order._id,
+                                                            updates: { status: newStatus as any }
+                                                        });
+                                                        // Also refresh to get latest data
                                                         getOrders();
                                                     }
                                                     
@@ -158,7 +147,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                         >
                                             {
                                                 {
-                                                    unverified: `Verify Payment ₹${total}`,
+                                                    unverified: `Verify Payment ₹${orderTotal}`,
                                                     verified: "Start Preparing",
                                                     "in-progress": "Mark as Done",
                                                     done: "Done",
@@ -174,13 +163,18 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                                 }
                                                 try
                                                 {
-                                                    
                                                     const response = await axios.put('/order', {
                                                         _id: order._id,
                                                         status: "cancelled"
                                                     });
                                                     if(response.status == 200)
                                                     {
+                                                        // Update order in state
+                                                        updateOrder({
+                                                            orderId: order._id,
+                                                            updates: { status: "cancelled" }
+                                                        });
+                                                        // Also refresh to get latest data
                                                         getOrders();
                                                     }
                                                     

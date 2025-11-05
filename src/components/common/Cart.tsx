@@ -6,15 +6,16 @@ import { toast } from "react-toastify";
 import { useModal } from "../../context/ModalContext";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import QRCode from "react-qr-code";
+import { useRazorpayCheckout } from "../../payment/RazorpayCheckout";
 
 function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
-  const { menu } = useReduxState();
-  const { setMenu } = useReduxAction();
+  const { menu, orders } = useReduxState();
+  const { setMenu, setOrders, addOrder, updateOrder } = useReduxAction();
   const cart = menu.filter((item: any) => item.quantity > 0);
   const modal = useModal();
   const navigate = useNavigate();
-  const [paymentLink, setPaymentLink] = useState<string | null>();
+  const { openRazorpay } = useRazorpayCheckout();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   return (
     <>
@@ -25,32 +26,6 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
       <div
         className={`${props.cartOpen ? "" : "translate-x-full"}  right-0 duration-300 p-8 fixed z-40 w-full md:w-128 h-screen top-0 bg-background shadow-xl flex flex-col justify-between`}
       >
-        <div
-          className={`backdrop-blur duration-300 bg-black/20 p-8 ${paymentLink ? "" : "opacity-0 pointer-events-none"} flex gap-4 flex-col justify-center items-center h-full z-40 w-full absolute top-0 left-0`}
-        >
-          {/* <img className="w-full object-contain" src={paymentLink!} alt="" /> */}
-          {paymentLink && (
-            <>
-              <div className="bg-white w-full p-8 aspect-square object-contain rounded-lg">
-                <QRCode className="h-full w-full" value={paymentLink} />
-              </div>
-              <Button
-                onClick={() => navigate("/orders")}
-                className="w-full bg-[#E49B0F]"
-               
-              >
-                Go to your Orders
-              </Button>
-              <Button
-                onClick={() => window.open(paymentLink, "_blank")}
-                className="w-full bg-[#477023]"
-                
-              >
-                Open URL
-              </Button>
-            </>
-          )}
-        </div>
         <h2 className="text-4xl text-center relative">
   <span>Cart</span>
   <svg
@@ -108,9 +83,33 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
                 ) {
                   return;
                 }
-                try {
 
-                  let response = await axios.post(
+                if (isProcessing) {
+                  return;
+                }
+
+                setIsProcessing(true);
+
+                try {
+                  // Calculate total amount correctly
+                  let totalAmount = 0;
+                  cart.forEach((item: any) => {
+                    // Handle different price formats: "₹100", "₹1,000", "100", etc.
+                    const priceStr = item.price.replace(/₹/g, "").replace(/,/g, "").trim();
+                    const price = parseFloat(priceStr) || 0;
+                    totalAmount += price * item.quantity;
+                  });
+
+                  if (totalAmount <= 0) {
+                    toast.error("Invalid order amount", {
+                      position: "bottom-right",
+                    });
+                    setIsProcessing(false);
+                    return;
+                  }
+
+                  // First, create the order in the database
+                  let orderResponse = await axios.post(
                     "/order",
                     {
                       order: { cart },
@@ -121,31 +120,102 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
                       },
                     },
                   );
-                  // console.log(response);
-                  if (response.status === 200) {
-                    setMenu(menu); //clear cart
-                    //TODO UPI BLA BLA
-                    // window.open(response.data.data.paymentLink, "_blank");
-                    setPaymentLink(`${response.data.data.paymentLink}`);
-                    if (window.innerWidth < 768) {
-                      window.open(response.data.data.paymentLink, "_blank");
-                    }
 
-                    toast.success(response.data.message, {
-                      position: "bottom-right",
+                  if (orderResponse.status === 200) {
+                    const orderId = orderResponse.data.data.orderId || orderResponse.data.data._id;
+                    const createdOrder = orderResponse.data.data;
+
+                    // Open Razorpay checkout
+                    await openRazorpay({
+                      amount: totalAmount,
+                      orderId: orderId,
+                      onSuccess: async (paymentData: any) => {
+                        try {
+                          // Payment verification is already done in the RazorpayCheckout component
+                          // The order status is automatically updated to "verified" on the server
+                          
+                          // Fetch updated orders from server to get the latest status
+                          const token = localStorage.getItem("token");
+                          const updatedOrderResponse = await axios.get("/order", {
+                            headers: {
+                              Authorization: token || "",
+                            },
+                          });
+
+                          if (updatedOrderResponse.data.success) {
+                            const allOrders = updatedOrderResponse.data.data.orders;
+                            // Update orders in state
+                            setOrders(allOrders);
+                            
+                            // If verification response contains the updated order, use it
+                            if (paymentData.verificationResponse?.order) {
+                              const updatedOrder = paymentData.verificationResponse.order;
+                              // Update or add the order in state
+                              const existingOrderIndex = orders.findIndex((o: any) => o._id === orderId);
+                              if (existingOrderIndex !== -1) {
+                                // Update existing order
+                                updateOrder({
+                                  orderId: orderId,
+                                  updates: {
+                                    status: updatedOrder.status,
+                                    paymentId: updatedOrder.paymentId,
+                                    razorpayOrderId: updatedOrder.razorpayOrderId,
+                                    paymentStatus: updatedOrder.paymentStatus,
+                                  }
+                                });
+                              } else {
+                                // Add new order
+                                addOrder(updatedOrder);
+                              }
+                            }
+                          }
+
+                          // Clear cart
+                          setMenu(menu.map((item: any) => ({ ...item, quantity: 0 })));
+                          
+                          toast.success("Payment successful! Order placed and verified.", {
+                            position: "bottom-right",
+                          });
+                          setIsProcessing(false);
+                          props.setCartOpen(false);
+                          navigate("/orders");
+                        } catch (error: any) {
+                          console.error("Error fetching updated order:", error);
+                          // Still clear cart and show success
+                          setMenu(menu.map((item: any) => ({ ...item, quantity: 0 })));
+                          toast.success("Payment successful! Order placed.", {
+                            position: "bottom-right",
+                          });
+                          setIsProcessing(false);
+                          props.setCartOpen(false);
+                          navigate("/orders");
+                        }
+                      },
+                      onError: (error: any) => {
+                        console.error("Payment error:", error);
+                        toast.error(error?.message || "Payment failed. Please try again.", {
+                          position: "bottom-right",
+                        });
+                        setIsProcessing(false);
+                      },
+                      onClose: () => {
+                        setIsProcessing(false);
+                      },
+                      userToken: Authorization,
                     });
                   }
                 } catch (e: any) {
                   console.log(e);
-                  toast.error(e?.response?.data?.message, {
+                  toast.error(e?.response?.data?.message || "Failed to process order", {
                     position: "bottom-right",
                   });
+                  setIsProcessing(false);
                 }
               }}
               className="w-full bg-[#E49B0F]"
-              
+              disabled={isProcessing}
             >
-              Proceed To Checkout
+              {isProcessing ? "Processing..." : "Proceed To Checkout"}
             </Button>
           ) : (
             <h2 className="text-2xl text-center">Cart is empty</h2>
