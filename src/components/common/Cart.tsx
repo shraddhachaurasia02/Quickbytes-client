@@ -24,30 +24,29 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
         className={`${props.cartOpen ? "bg-text/50" : "pointer-events-none"} duration-300 fixed z-30 w-screen h-screen left-0 top-0`}
       />
       <div
-        className={`${props.cartOpen ? "" : "translate-x-full"}  right-0 duration-300 p-8 fixed z-40 w-full md:w-128 h-screen top-0 bg-background shadow-xl flex flex-col justify-between`}
+        className={`${props.cartOpen ? "" : "translate-x-full"} right-0 duration-300 p-6 md:p-8 fixed z-40 w-full md:w-128 h-screen top-0 bg-background2 shadow-2xl border-l border-text/10 flex flex-col justify-between backdrop-blur-sm`}
       >
-        <h2 className="text-4xl text-center relative">
-  <span>Cart</span>
-  <svg
-    onClick={() => props.setCartOpen(false)}
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-    strokeWidth={1.5}
-    stroke="currentColor"
-    className="w-8 h-8 absolute right-0 top-1/2 transform -translate-y-1/2 hover:text-primary hover:scale-105 active:scale-95 duration-200"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      color="#477023"
-      d="m9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-    />
-  </svg>
-</h2>
+        <div className="flex items-center justify-between mb-6 pb-4 border-b border-text/10">
+          <h2 className="text-3xl font-bold text-text">Cart</h2>
+          <button
+            onClick={() => props.setCartOpen(false)}
+            className="p-2 rounded-lg hover:bg-text/5 transition-colors text-text/60 hover:text-text"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-6 h-6"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
 
-        <div className="overflow-y-scroll grow mt-8">
-          <div className="flex flex-col gap-4 items-stretch">
+        <div className="overflow-y-auto grow -mx-2 px-2">
+          <div className="flex flex-col gap-3 items-stretch">
             {menu.map(
               (item: any, index: any) =>
                 item &&
@@ -212,13 +211,19 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
                   setIsProcessing(false);
                 }
               }}
-              className="w-full bg-[#E49B0F]"
+              className="w-full bg-[#E49B0F] hover:bg-[#d18a0d] text-white font-semibold"
               disabled={isProcessing}
             >
               {isProcessing ? "Processing..." : "Proceed To Checkout"}
             </Button>
           ) : (
-            <h2 className="text-2xl text-center">Cart is empty</h2>
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 text-text/30 mb-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+              </svg>
+              <h2 className="text-xl font-semibold text-text/60">Cart is empty</h2>
+              <p className="text-sm text-text/40 mt-2">Add items to get started</p>
+            </div>
           )}
         </div>
       </div>

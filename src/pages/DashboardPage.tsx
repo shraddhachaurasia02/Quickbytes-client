@@ -12,11 +12,11 @@ function DashboardPage() {
   return (
     <>
       <Navbar  />
-      <main className="container mx-auto px-4">
+      <main className="container mx-auto px-4 pb-8">
         <FeaturedSection className="mt-8"/>
-        <section className="mt-16">
-          <h1 className="font-bold text-3xl md:text-6xl mb-8">
-            What Are You <span className="text-[#E49B0F]">Craving ?</span>
+        <section className="mt-12 md:mt-16">
+          <h1 className="font-bold text-3xl md:text-5xl lg:text-6xl mb-6 md:mb-8 leading-tight">
+            What Are You <span className="text-[#E49B0F]">Craving?</span>
           </h1>
           <Input
             value={search}
@@ -41,11 +41,11 @@ function DashboardPage() {
           />
         </section>
         {search.length > 0 ? (
-          <section className="py-8">
-            <h2 className="text-2xl font-bold mb-8">
-              Search Results for {search}
+          <section className="py-6 md:py-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-6 text-text/80">
+              Search Results for <span className="text-[#477023]">"{search}"</span>
             </h2>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6">
               {menu
                 .filter((item: any) =>
                   item.title.toLowerCase().includes(search.toLowerCase())
@@ -56,9 +56,9 @@ function DashboardPage() {
             </div>
           </section>
         ) : (
-          <section className="py-8">
-            <h2 className="text-2xl font-bold mb-8">Most Ordered</h2>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+          <section className="py-6 md:py-8">
+            <h2 className="text-xl md:text-2xl font-bold mb-6 text-text">Most Ordered</h2>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 md:gap-6">
               {menu.map((item: any, index: any) => (
                 <FoodItemCard key={index} index={index} item={item} />
               ))}
