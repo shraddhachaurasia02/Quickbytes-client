@@ -36,7 +36,7 @@ export default function Input(props: InputProps) {
         placeholder={props.placeHolder}
         value={props.value}
         onChange={props.onChange}
-        className={`${props.hasError ? "border-red" : "focus:border-b-accent border-text/15"} w-full ${props.icon ? "px-12 py-2 md:py-3" : "p-2 md:p-3"} text-sm bg-background focus:bg-background2 text-light/75 outline-none border-2 rounded-lg focus:rounded-none focus:rounded-t-lg  transition-all duration-500`}
+        className={`${props.hasError ? "border-red focus:border-red" : "border-text/20 focus:border-[#477023]"} w-full ${props.icon ? "pl-12 pr-4 py-3" : "px-4 py-3"} text-sm bg-background2 focus:bg-white text-text/80 placeholder:text-text/40 outline-none border rounded-xl focus:ring-2 focus:ring-[#477023]/20 transition-all duration-200`}
       />
     </div>
   );

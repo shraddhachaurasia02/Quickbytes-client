@@ -15,7 +15,7 @@ function Button(props: {
   return (
     <button
       onClick={props.onClick}
-      className={`${props.className} ${color[props.color]} text-background rounded-md px-4 py-3 md:py-4 md:px-8 text-xs md:text-sm hover:scale-[1.02] transition-transform active:scale-95`}
+      className={`${props.className} ${color[props.color]} text-background rounded-xl px-5 py-2.5 md:py-3 md:px-8 text-sm md:text-base font-medium shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]`}
     >
       {props.children}
     </button>

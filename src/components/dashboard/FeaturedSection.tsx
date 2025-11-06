@@ -26,13 +26,13 @@ function FeaturedSection(props: {className?: string}) {
   }, [featuredSection]);
 
   return (
-    <section className={`overflow-clip rounded-xl ${props.className}`}>
+    <section className={`overflow-hidden rounded-2xl shadow-lg ${props.className}`}>
       <section
         style={{
           width: `${100 * featuredSection.length}%`,
           transform: `translateX(-${(pageIndex * 100) / featuredSection.length}%)`,
         }}
-        className={`h-96 md:h-128 text-background flex duration-300 mt-4 md:mt-0`}
+        className={`h-80 md:h-128 text-white flex duration-500 ease-in-out`}
       >
         {featuredSection.map((item, index) => (
           <FeaturedTile count={featuredSection.length} key={index} {...item} />
@@ -56,20 +56,20 @@ function FeaturedTile(props: {
       style={{ width: `${100 / props.count}%` }}
       className="h-full flex flex-col justify-between relative md:p-16 p-8"
     >
-      <div className="absolute -z-10 top-0 left-0 w-full h-full bg-black">
+      <div className="absolute -z-10 top-0 left-0 w-full h-full bg-gradient-to-br from-black/80 to-black/60">
         <img
-          className="w-full h-full object-cover opacity-70"
+          className="w-full h-full object-cover opacity-60"
           src={props.image}
-          alt=""
+          alt={props.title}
         />
       </div>
-      <div>
-        <h2>Today's Featured</h2>
+      <div className="relative z-10">
+        <span className="inline-block px-3 py-1 bg-[#E49B0F]/90 backdrop-blur-sm rounded-full text-xs font-semibold mb-4 shadow-md">Today's Featured</span>
       </div>
-      <div>
-        <h2 className="text-lg opacity-70">{props.canteen}</h2>
-        <h1 className="text-3xl font-bold">{props.title}</h1>
-        <h2 className="flex items-center gap-4 mt-2 opacity-70">
+      <div className="relative z-10">
+        <h2 className="text-base md:text-lg opacity-90 mb-2">{props.canteen}</h2>
+        <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-3 leading-tight">{props.title}</h1>
+        <h2 className="flex items-center gap-3 mt-2 opacity-90 text-sm md:text-base">
           <span className="">{props.price}</span>
           <span>|</span>
           <svg
