@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import Icon from "./Icon";
 import TextButton from "./TextButton";
-import Button from "./Button";
 import { useReduxState } from "../../hooks/UseRedux";
 import { useState } from "react";
 import Cart from "./Cart";

@@ -7,6 +7,32 @@ import { useModal } from "../../context/ModalContext";
 import { useReduxAction, useReduxState } from "../../hooks/UseRedux";
 import { Order } from "../../model/order/IOrderModel";
 
+type OrderStatus = Order['status'];
+
+const statusColors: Record<OrderStatus, string> = {
+    unverified: "bg-slate-600",
+    verified: "bg-yellow-500",
+    "in-progress": "bg-blue-500",
+    done: "bg-green-600",
+    cancelled: "bg-red-600"
+};
+
+const statusTransitions: Record<OrderStatus, OrderStatus> = {
+    unverified: "verified",
+    verified: "in-progress",
+    "in-progress": "done",
+    done: "done",
+    cancelled: "cancelled"
+};
+
+const statusButtonText: Record<OrderStatus, string> = {
+    unverified: `Verify Payment`,
+    verified: "Start Preparing",
+    "in-progress": "Mark as Done",
+    done: "Done",
+    cancelled: "Cancelled"
+};
+
 function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
 {
     const { orders } = useReduxState();
@@ -63,7 +89,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                     )
                 }
                 {
-                    orders.map((order, index) => {
+                    orders.map((order: Order, index: number) => {
 
                         if (props.hideDoneAndCancelled && (order.status === "done" || order.status === "cancelled")) {
                             return null;
@@ -95,13 +121,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                         </div>
                                     )
                                 }
-                                <span className={`px-3 py-1.5 text-white rounded-full text-xs font-medium capitalize shadow-sm ${{
-                                    unverified: "bg-slate-600",
-                                    verified: "bg-yellow-500",
-                                    "in-progress": "bg-blue-500",
-                                    done: "bg-green-600",
-                                    cancelled: "bg-red-600"
-                                }[order.status]}`}>
+                                <span className={`px-3 py-1.5 text-white rounded-full text-xs font-medium capitalize shadow-sm ${statusColors[order.status]}`}>
                                     {order.status.replace("-", " ")}
                                 </span>
                             </div>
@@ -119,18 +139,14 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                             {
                                 (props.admin && order.status != 'done' && order.status != 'cancelled') && (
                                     <div className="flex gap-2 mt-2 pt-4 border-t border-text/10">
-                                        <Button className="w-full bg-[#E49B0F] hover:bg-[#d18a0d]"
+                                        <Button 
+                                            color="primary"
+                                            className="w-full bg-[#E49B0F] hover:bg-[#d18a0d]"
                                             onClick={async () => {
                                                 if (!(await modal?.CreateModal("Confirmation", "Are you sure you want to change the status of this order?", "Yes", "No"))) {
                                                     return;
                                                 }
-                                                const newStatus = {
-                                                    unverified: "verified",
-                                                    verified: "in-progress",
-                                                    "in-progress": "done",
-                                                    done: "done",
-                                                    cancelled: "cancelled"
-                                                }[order.status];
+                                                const newStatus = statusTransitions[order.status];
                                                 try
                                                 {
                                                     const response = await axios.put('/order', {
@@ -142,7 +158,7 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                                         // Update order in state
                                                         updateOrder({
                                                             orderId: order._id,
-                                                            updates: { status: newStatus as any }
+                                                            updates: { status: newStatus }
                                                         });
                                                         // Also refresh to get latest data
                                                         getOrders();
@@ -159,18 +175,11 @@ function OrderList(props:{admin?:boolean,hideDoneAndCancelled?:boolean})
                                                 }
                                             }}
                                         >
-                                            {
-                                                {
-                                                    unverified: `Verify Payment ₹${orderTotal}`,
-                                                    verified: "Start Preparing",
-                                                    "in-progress": "Mark as Done",
-                                                    done: "Done",
-                                                    cancelled: "Cancelled"
-                                                }[order.status]
-                                            }
+                                            {order.status === "unverified" ? `Verify Payment ₹${orderTotal}` : statusButtonText[order.status]}
                                         </Button>
                                         {
                                             order.status == 'unverified' && <Button
+                                            color="red"
                                             onClick={async()=>{
                                                 if (!(await modal?.CreateModal("Confirmation", "Are you sure you want to change the status of this order?", "Yes", "No"))) {
                                                     return;

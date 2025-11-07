@@ -27,7 +27,7 @@ export const orderModel: IOrderModel = {
     }
   ),
   refreshOrders: action(
-    (state: StateMapper<FilterActionTypes<IOrderModel>>) => {
+    () => {
       // This will be called from components to trigger a refresh
       // The actual fetching will be done in the component
     }

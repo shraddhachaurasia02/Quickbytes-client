@@ -23,9 +23,6 @@ function MenuModal({ modalOpen, setModalOpen, addMode, formData, setFormData }: 
 }) {
     const { setMenu } = useReduxAction();
 
-    async function GetMenu() { /* ... */ }
-
-
     async function handleSubmit(e: any) {
       
         e.preventDefault(); 
@@ -104,7 +101,7 @@ function MenuModal({ modalOpen, setModalOpen, addMode, formData, setFormData }: 
 
                     <Input placeHolder="Image URL" value={formData.image} onChange={(e) => setFormData({ ...formData, image: e.target.value })}>Image</Input>
 
-                    <Button className="mt-4 bg-[#477023] hover:bg-[#3a5a1c] duration-200 md:col-span-2">
+                    <Button className="mt-4 bg-[#477023] hover:bg-[#3a5a1c] duration-200 md:col-span-2" color="primary">
                         {addMode ? "Add Item" : "Update Item"}
                     </Button>
                 </form>
@@ -182,6 +179,7 @@ function MenuItem(props: any) {
                     <div className="flex gap-2">
                         <Button
                             className="bg-[#E49B0F] hover:bg-[#c88a0e] text-white duration-200 text-sm font-medium !p-2 flex items-center gap-1.5"
+                            color="primary"
                             onClick={() => {
                                 setModalOpen(true);
                                 setAddMode(false);
@@ -194,8 +192,8 @@ function MenuItem(props: any) {
                             <span>Edit</span>
                         </Button>
                         <Button
+                            color="primary"
                             onClick={handleDelete}
-                            // Assuming this makes it red
                             className="!p-2 text-sm font-medium flex items-center gap-1.5 bg-[#950606]" // Added text, icon, and spacing
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -240,6 +238,7 @@ export default function MenuPage() {
                         <p className="text-text/70 mt-1">Manage all the food items available in the canteens.</p>
                     </div>
                     <Button
+                        color="primary"
                         className="bg-[#477023] hover:bg-[#3a5a1c] duration-200 flex-shrink-0" // Added hover effect
                         onClick={() => { setModalOpen(true); setAddMode(true) }}
                     >

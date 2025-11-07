@@ -5,6 +5,7 @@ function Button(props: {
   className?: string;
   color: "primary" | "secondary" | "accent" | "red";
   onClick?: React.MouseEventHandler<HTMLButtonElement> | undefined;
+  disabled?: boolean;
 }) {
   let color: { [key: string]: string } = {
     primary: "bg-primary",

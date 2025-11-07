@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { loadScript } from "./razorpayScript";
-import { createRazorpayOrder, verifyRazorpayPayment } from "./razorpay";
+import { createRazorpayOrder, verifyRazorpayPayment, RazorpayVerifyResponse } from "./razorpay";
 
 declare global {
   interface Window {
@@ -39,6 +39,7 @@ interface RazorpayCheckoutProps {
     razorpay_payment_id: string;
     razorpay_order_id: string;
     razorpay_signature: string;
+    verificationResponse?: RazorpayVerifyResponse;
   }) => void;
   onError: (error: any) => void;
   onClose?: () => void;
@@ -59,7 +60,7 @@ export function useRazorpayCheckout() {
         .then(() => {
           razorpayLoaded.current = true;
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.error("Failed to load Razorpay script:", error);
         });
     }
@@ -105,9 +106,11 @@ export function useRazorpayCheckout() {
 
             // Call success callback with payment data and verification response
             options.onSuccess({
-              ...response,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_signature: response.razorpay_signature,
               verificationResponse: verifyResponse,
-            } as any);
+            });
           } catch (error) {
             console.error("Payment verification failed:", error);
             options.onError(error);
@@ -146,9 +149,8 @@ export default function RazorpayCheckout(props: RazorpayCheckoutProps) {
   const { openRazorpay } = useRazorpayCheckout();
 
   useEffect(() => {
-    // Auto-open when component mounts (if needed)
-    // This can be called manually from parent component
-  }, []);
+    openRazorpay(props);
+  }, [props, openRazorpay]);
 
-  return null; // This component doesn't render anything
+  return null;
 }

@@ -63,7 +63,8 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
         </div>
         <div>
           {cart.length > 0 ? (
-            <Button
+            <Button 
+              color="primary"
               onClick={async () => {
                 const Authorization = localStorage.getItem("token");
                 if(!Authorization){
@@ -122,7 +123,6 @@ function Cart(props: { cartOpen: boolean; setCartOpen: (prev: any) => any }) {
 
                   if (orderResponse.status === 200) {
                     const orderId = orderResponse.data.data.orderId || orderResponse.data.data._id;
-                    const createdOrder = orderResponse.data.data;
 
                     // Open Razorpay checkout
                     await openRazorpay({

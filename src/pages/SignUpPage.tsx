@@ -176,7 +176,7 @@ export default function SignUpPage()
           >
             Confirm Password
           </Input>
-          <Button className="bg-[#477023]">
+          <Button className="bg-[#477023]" color="primary">
             Create Account
           </Button>
           <h1 className="text-center text-text/70">

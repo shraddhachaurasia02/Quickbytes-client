@@ -28,12 +28,12 @@ function LandingPage() {
       
       <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start max-w-md mx-auto lg:mx-0">
         <Link className="flex-1" to="/signup">
-          <Button className="w-full bg-gradient-to-r from-[#477023] to-[#5a8c2a] hover:from-[#3d5f1f] hover:to-[#4a7324] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 py-3 px-6 text-base font-medium rounded-xl">
+          <Button className="w-full bg-gradient-to-r from-[#477023] to-[#5a8c2a] hover:from-[#3d5f1f] hover:to-[#4a7324] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 py-3 px-6 text-base font-medium rounded-xl" color="primary">
             Get Started
           </Button>
         </Link>
         <Link className="flex-1" to="/dashboard">
-          <Button className="w-full !bg-[#477023] border-2 border-[#477023] text-[#477023] hover:!bg-[#E49B0F] hover:text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 py-3 px-6 text-base font-medium rounded-xl">
+          <Button className="w-full !bg-[#477023] border-2 border-[#477023] text-[#477023] hover:!bg-[#E49B0F] hover:text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 py-3 px-6 text-base font-medium rounded-xl" color="primary">
             View Menu
           </Button>
         </Link>
@@ -65,7 +65,7 @@ function LandingPage() {
             </h1>
             <div className="flex gap-4 justify-center">
               <Link className="w-full" to="/admin">
-                <Button className="w-full bg-[#E49B0F]" >
+                <Button className="w-full bg-[#E49B0F]" color="primary">
                   Admin Portal
                 </Button>
               </Link>

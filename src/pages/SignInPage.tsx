@@ -126,7 +126,7 @@ export default function SignInPage()
           </Input>
           <Button
             className="w-full bg-[#477023]"
-            
+            color="primary"
           >
             Sign in
           </Button>

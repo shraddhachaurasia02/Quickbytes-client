@@ -99,10 +99,10 @@ export function ModalProvier(props: { children: React.ReactNode }) {
                     </div>
                     <div className="opacity-70 mt-4">{modalContent}</div>
                     <div className="flex gap-4 mt-4">
-                        <Button onClick={positiveClick} className="w-full bg-[#477023]" >
+                        <Button onClick={positiveClick} className="w-full bg-[#477023]" color="primary" >
                             {positiveBTN}
                         </Button>
-                        <Button onClick={negativeClick} className="w-full bg-[#950606]" >
+                        <Button onClick={negativeClick} className="w-full bg-[#950606]" color="red" >
                             {negativeBTN}
                         </Button>
                     </div>
