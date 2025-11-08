@@ -8,8 +8,8 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       manifest: {
-        name: "SnapMeal",
-        short_name: "SnapMeal",
+        name: "quickbytes",
+        short_name: "quickbytes",
         theme_color: "#3A5CD6",
         background_color: "#FBFCFE",
         display: "standalone",
