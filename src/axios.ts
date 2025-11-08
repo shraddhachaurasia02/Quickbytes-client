@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-   baseURL: "http://localhost:4001/",
-  // baseURL: "https://snapmeal-server.vercel.app/",
+   baseURL: "https://quickbytes-server-obaw.onrender.com/",
   timeout: 10000,
 });
 
